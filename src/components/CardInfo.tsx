@@ -1,7 +1,14 @@
 import React from 'react';
 
+export interface CardList {
+  listings: CardInfoProps[];
+}
 export interface CardInfoProps {
+  // eslint-disable-next-line react/no-unused-prop-types
+    id: string;
     name: string;
+  // eslint-disable-next-line react/no-unused-prop-types
+    city: string;
     price: number;
     image: string;
     type: 'Apartment' | 'Room';
