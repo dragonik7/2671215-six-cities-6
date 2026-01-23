@@ -1,19 +1,26 @@
-import { Link } from 'react-router-dom';
+// src/pages/favorites/FavoritesPage.tsx
 
+import {useEffect, useState} from 'react';
+import {Link} from 'react-router-dom';
 import Header from '../../components/Header';
 import CardInfo from '../../components/CardInfo.tsx';
-import {ListOffer, Offer} from '../../mocks/offers.ts';
+import {getFavorites} from '../../services/offers';
+import {Offer} from '../../types/types.ts';
 
-function FavoritesPage({offers}: ListOffer): JSX.Element {
-  const citiesMap = offers.reduce<Record<string, Offer[]>>(
-    (acc, item) => {
-      acc[item.city] = acc[item.city]
-        ? [...acc[item.city], item]
-        : [item];
-      return acc;
-    },
-    {}
-  );
+function FavoritesPage(): JSX.Element {
+  const [favorites, setFavorites] = useState<Offer[]>([]);
+  const token = localStorage.getItem('token') ?? '';
+
+  useEffect(() => {
+    getFavorites(token).then(setFavorites);
+  }, [token]);
+
+  const citiesMap = favorites.reduce<Record<string, Offer[]>>((acc, item) => {
+    const city = item.city.name;
+    acc[city] = acc[city] ? [...acc[city], item] : [item];
+    return acc;
+  }, {});
+
   const cityNames = Object.keys(citiesMap);
 
   return (
@@ -38,7 +45,24 @@ function FavoritesPage({offers}: ListOffer): JSX.Element {
 
                   <div className="favorites__places">
                     {citiesMap[city].map((item) => (
-                      <CardInfo key={item.id} {...item} />
+                      <CardInfo
+                        key={item.id}
+                        id={item.id}
+                        title={item.title}
+                        price={item.price}
+                        previewImage={item.previewImage}
+                        type={item.type}
+                        city={item.city}
+                        location={item.location}
+                        rating={item.rating * 20}
+                        isPremium={item.isPremium}
+                        isFavorite={item.isFavorite}
+                        isActive={false}
+                        onMouseEnter={() => {
+                        }}
+                        onMouseLeave={() => {
+                        }}
+                      />
                     ))}
                   </div>
                 </li>

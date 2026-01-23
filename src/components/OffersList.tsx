@@ -1,11 +1,21 @@
 // src/components/OffersList.tsx
-import {useState} from 'react';
 import CardInfo from './CardInfo';
-import {ListOffer} from '../mocks/offers.ts';
+import {Offer} from '../types/types.ts';
 
-function OffersList({offers}: ListOffer) {
-  // @typescript-eslint/no-unused-vars
-  const [activeOfferId, setActiveOfferId] = useState<string | null>(null);
+interface OffersListProps {
+  offers: Offer[];
+  activeOffer : (Offer | null);
+  setActiveOffer: (offer: Offer | null) => void;
+}
+
+function OffersList({offers, activeOffer, setActiveOffer}: OffersListProps): JSX.Element {
+  const handleMouseEnter = (offer: Offer): void => {
+    setActiveOffer(offer);
+  };
+
+  const handleMouseLeave = (): void => {
+    setActiveOffer(null);
+  };
 
   return (
     <div className="cities__places-list places__list tabs__content">
@@ -13,9 +23,9 @@ function OffersList({offers}: ListOffer) {
         <CardInfo
           key={offer.id}
           {...offer}
-          isActive={offer.id === activeOfferId}
-          onMouseEnter={() => setActiveOfferId(offer.id)}
-          onMouseLeave={() => setActiveOfferId(null)}
+          isActive={offer === activeOffer}
+          onMouseEnter={() => handleMouseEnter(offer)}
+          onMouseLeave={handleMouseLeave}
         />
       ))}
     </div>

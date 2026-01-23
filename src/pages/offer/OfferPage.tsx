@@ -1,8 +1,33 @@
 import Header from '../../components/Header.tsx';
-import {ListOffer} from '../../mocks/offers.ts';
-import OffersList from '../../components/OffersList.tsx';
+import {OfferFull} from '../../types/types.ts';
+import {useEffect, useState} from 'react';
+import {getOfferById} from '../../services/offers.ts';
+import {useParams} from 'react-router-dom';
 
-function OfferPage({offers}: ListOffer): JSX.Element{
+function OfferPage(): JSX.Element {
+  const {id} = useParams<{id: string}>();
+  const [offer, setOffer] = useState<OfferFull | null>(null);
+  // const [offerNearby, setOfferNearby] = useState<Offer[]|null>(null);
+  // const [activeOffer, setActiveOffer] = useState<OfferFull | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+    getOfferById(id)
+      .then(setOffer)
+      .finally(() => setIsLoading(false));
+  }, [id]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!offer) {
+    return <div>Offer not found</div>;
+  }
+
   return (
     <div className="page">
       <Header hideUser/>
@@ -10,24 +35,11 @@ function OfferPage({offers}: ListOffer): JSX.Element{
         <section className="offer">
           <div className="offer__gallery-container container">
             <div className="offer__gallery">
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src="img/room.jpg" alt="Photo studio"/>
-              </div>
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src="img/apartment-01.jpg" alt="Photo studio"/>
-              </div>
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src="img/apartment-02.jpg" alt="Photo studio"/>
-              </div>
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src="img/apartment-03.jpg" alt="Photo studio"/>
-              </div>
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src="img/studio-01.jpg" alt="Photo studio"/>
-              </div>
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src="img/apartment-01.jpg" alt="Photo studio"/>
-              </div>
+              {offer.images.map((image) => (
+                <div key={image} className="offer__image-wrapper">
+                  <img className="offer__image" src={image} alt={offer.title}/>
+                </div>
+              ))}
             </div>
           </div>
           <div className="offer__container container">
@@ -36,96 +48,67 @@ function OfferPage({offers}: ListOffer): JSX.Element{
                 <span>Premium</span>
               </div>
               <div className="offer__name-wrapper">
-                <h1 className="offer__name">
-                    Beautiful &amp; luxurious studio at great location
-                </h1>
-                <button className="offer__bookmark-button button" type="button">
-                  <svg className="offer__bookmark-icon" width="31" height="33">
+                <h1 className="offer__name">{offer.title}</h1>
+                <button
+                  className={`place-card__bookmark-button ${offer.isFavorite ? 'place-card__bookmark-button--active' : ''} button`}
+                  type="button"
+                >
+                  <svg className="place-card__bookmark-icon" width="18" height="19">
                     <use xlinkHref="#icon-bookmark"></use>
                   </svg>
-                  <span className="visually-hidden">To bookmarks</span>
+                  <span className="visually-hidden">{offer.isFavorite ? 'In bookmarks' : 'To bookmarks'}</span>
                 </button>
               </div>
               <div className="offer__rating rating">
                 <div className="offer__stars rating__stars">
-                  <span style={{width: '80%'}}></span>
+                  <span style={{width: `${((offer.rating ?? 0) / 5) * 100}%`}}></span>
                   <span className="visually-hidden">Rating</span>
                 </div>
                 <span className="offer__rating-value rating__value">4.8</span>
               </div>
               <ul className="offer__features">
                 <li className="offer__feature offer__feature--entire">
-                    Apartment
+                  {offer.type}
                 </li>
                 <li className="offer__feature offer__feature--bedrooms">
-                    3 Bedrooms
+                  {offer.bedrooms} Bedrooms
                 </li>
                 <li className="offer__feature offer__feature--adults">
-                    Max 4 adults
+                    Max {offer.maxAdults} adults
                 </li>
               </ul>
               <div className="offer__price">
-                <b className="offer__price-value">&euro;120</b>
+                <b className="offer__price-value">&euro;{offer.price}</b>
                 <span className="offer__price-text">&nbsp;night</span>
               </div>
               <div className="offer__inside">
                 <h2 className="offer__inside-title">What&apos;s inside</h2>
                 <ul className="offer__inside-list">
-                  <li className="offer__inside-item">
-                      Wi-Fi
-                  </li>
-                  <li className="offer__inside-item">
-                      Washing machine
-                  </li>
-                  <li className="offer__inside-item">
-                      Towels
-                  </li>
-                  <li className="offer__inside-item">
-                      Heating
-                  </li>
-                  <li className="offer__inside-item">
-                      Coffee machine
-                  </li>
-                  <li className="offer__inside-item">
-                      Baby seat
-                  </li>
-                  <li className="offer__inside-item">
-                      Kitchen
-                  </li>
-                  <li className="offer__inside-item">
-                      Dishwasher
-                  </li>
-                  <li className="offer__inside-item">
-                      Cabel TV
-                  </li>
-                  <li className="offer__inside-item">
-                      Fridge
-                  </li>
+                  {offer.goods.map((good) => (
+                    <li key={good} className="offer__inside-item">
+                      {good}
+                    </li>
+                  ))}
                 </ul>
               </div>
               <div className="offer__host">
                 <h2 className="offer__host-title">Meet the host</h2>
                 <div className="offer__host-user user">
                   <div className="offer__avatar-wrapper offer__avatar-wrapper--pro user__avatar-wrapper">
-                    <img className="offer__avatar user__avatar" src="img/avatar-angelina.jpg" width="74" height="74"
-                      alt="Host avatar"
+                    <img className="offer__avatar user__avatar" src={offer.host.avatarUrl} width="74" height="74"
+                      alt={offer.host.name}
                     />
                   </div>
                   <span className="offer__user-name">
-                    Angelina
+                    {offer.host.name}
                   </span>
                   <span className="offer__user-status">
-                    Pro
+                    {offer.host.isPro}
                   </span>
                 </div>
                 <div className="offer__description">
                   <p className="offer__text">
-                      A quiet cozy and picturesque that hides behind a a river by the unique lightness of Amsterdam. The
-                      building is green and from 18th century.
-                  </p>
-                  <p className="offer__text">
-                      An independent House, strategically located between Rembrand Square and National Opera, but where
-                      the bustle of the city comes to rest in this alley flowery and colorful.
+                    {offer.description}
                   </p>
                 </div>
               </div>
@@ -148,7 +131,7 @@ function OfferPage({offers}: ListOffer): JSX.Element{
                     <div className="reviews__info">
                       <div className="reviews__rating rating">
                         <div className="reviews__stars rating__stars">
-                          <span style={{width: '80%'}}></span>
+                          <span style={{width: `${((offer.rating ?? 0) / 5) * 100}%`}}></span>
                           <span className="visually-hidden">Rating</span>
                         </div>
                       </div>
@@ -229,7 +212,7 @@ function OfferPage({offers}: ListOffer): JSX.Element{
           <section className="near-places places">
             <h2 className="near-places__title">Other places in the neighbourhood</h2>
             <div className="near-places__list places__list">
-              <OffersList offers={offers}/>
+              {/*<OffersList offers={offers} activeOffer={activeOffer} setActiveOffer={setActiveOffer}/>*/}
             </div>
           </section>
         </div>
