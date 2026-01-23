@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
 
 import Header from '../../components/Header';
-import CardInfo, {CardInfoProps, CardList} from '../../components/CardInfo.tsx';
+import CardInfo from '../../components/CardInfo.tsx';
+import {ListOffer, Offer} from '../../mocks/offers.ts';
 
-function FavoritesPage({listings}: CardList): JSX.Element {
-  const citiesMap = listings.reduce<Record<string, CardInfoProps[]>>(
+function FavoritesPage({offers}: ListOffer): JSX.Element {
+  const citiesMap = offers.reduce<Record<string, Offer[]>>(
     (acc, item) => {
       acc[item.city] = acc[item.city]
         ? [...acc[item.city], item]
@@ -35,7 +36,6 @@ function FavoritesPage({listings}: CardList): JSX.Element {
                     </div>
                   </div>
 
-                  {/* Карточки в этом городе */}
                   <div className="favorites__places">
                     {citiesMap[city].map((item) => (
                       <CardInfo key={item.id} {...item} />
