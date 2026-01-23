@@ -3,6 +3,7 @@ import {Link} from 'react-router-dom';
 import {Offer} from '../mocks/offers.ts';
 
 interface CardInfoProps extends Offer {
+  isActive: boolean;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
 }
@@ -16,12 +17,13 @@ function CardInfo({
   rating,
   isPremium,
   bookmarked,
+  isActive,
   onMouseEnter,
   onMouseLeave
 }: CardInfoProps): JSX.Element {
   return (
     <article
-      className="cities__card place-card"
+      className={`cities__card place-card ${isActive ? 'place-card--active' : ''}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
