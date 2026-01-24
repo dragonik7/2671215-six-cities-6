@@ -1,7 +1,7 @@
 // src/services/offers.ts
 
 import {api} from './api';
-import {Offer, OfferFull} from '../types/types.ts';
+import {Offer, OfferFull, Review} from '../types/types.ts';
 
 export const getOffers = async (): Promise<Offer[]> => {
   const {data} = await api.get<Offer[]>('/six-cities/offers');
@@ -12,8 +12,13 @@ export const getOfferById = async (id: string): Promise<OfferFull> => {
   const {data} = await api.get<OfferFull>(`/six-cities/offers/${id}`);
   return data;
 };
-export const getOffersNearby = async (id: string): Promise<Offer> => {
-  const {data} = await api.get<OfferFull>(`/six-cities/offers/${id}/nearby`);
+export const getOffersNearby = async (id: string): Promise<Offer[]> => {
+  const {data} = await api.get<Offer[]>(`/six-cities/offers/${id}/nearby`);
+  return data;
+};
+
+export const getComments = async (id: string): Promise<Review[]> => {
+  const {data} = await api.get<Review[]>(`/six-cities/comments/${id}`);
   return data;
 };
 

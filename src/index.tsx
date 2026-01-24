@@ -17,15 +17,11 @@ root.render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainPage/>} />
-
         <Route path="/login" element={<LoginPage />} />
-
         <Route path="/favorites" element={<PrivateRoute />}>
           <Route index element={<FavoritesPage/>} />
         </Route>
-
         <Route path="/offer/:id" element={<OfferPage/>} />
-
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

@@ -6,12 +6,17 @@ import OffersList from '../../components/OffersList.tsx';
 import {getOffers} from '../../services/offers';
 import {Offer} from '../../types/types.ts';
 import Map from '../../components/Map.tsx';
-import {getLocations} from '../../utils/UtilOffer.ts';
 
 function MainPage(): JSX.Element {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [activeOffer, setActiveOffer] = useState<Offer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const mapStyle: React.CSSProperties = {
+    width: '500px',
+    height: '682px',
+    borderRadius: '10px'
+  };
 
   useEffect(() => {
     getOffers()
@@ -22,8 +27,6 @@ function MainPage(): JSX.Element {
   if (isLoading) {
     return <div>Loading...</div>;
   }
-  const locations = getLocations(offers);
-  const city = offers[0]?.city;
 
   return (
     <div className="page page--gray page--main">
@@ -93,8 +96,8 @@ function MainPage(): JSX.Element {
 
               <section className="cities__right-section" style={{paddingTop: '29px'}}>
                 <Map
-                  city={city}
-                  locations={locations}
+                  mapStyle={mapStyle}
+                  offers={offers}
                   selectedPoint={activeOffer?.location}
                 />
               </section>

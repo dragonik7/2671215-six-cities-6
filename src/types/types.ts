@@ -37,3 +37,11 @@ export interface OfferFull extends Offer {
   images: string[];
   maxAdults: number;
 }
+
+export interface Review {
+  id: string;
+  date: string;
+  user: Host;
+  comment: string;
+  rating: number;
+}
