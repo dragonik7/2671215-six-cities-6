@@ -1,14 +1,22 @@
 // src/pages/main/MainPage.tsx
 
 import {useEffect, useState} from 'react';
+import {RootState} from '../../store';
 import Header from '../../components/Header.tsx';
+import CitiesList from '../../components/CitiesList.tsx';
+import {useDispatch, useSelector} from 'react-redux';
+import {setOffers} from '../../store/reducer';
 import OffersList from '../../components/OffersList.tsx';
 import {getOffers} from '../../services/offers';
 import {Offer} from '../../types/types.ts';
 import Map from '../../components/Map.tsx';
 
 function MainPage(): JSX.Element {
-  const [offers, setOffers] = useState<Offer[]>([]);
+  const offersAll = useSelector((state: RootState) => state.app.offers);
+  const city = useSelector((state: RootState) => state.app.city);
+  const dispatch = useDispatch();
+  const offers = offersAll.filter((o) => o.city.name === city);
+
   const [activeOffer, setActiveOffer] = useState<Offer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -20,9 +28,9 @@ function MainPage(): JSX.Element {
 
   useEffect(() => {
     getOffers()
-      .then(setOffers)
+      .then((data) => dispatch(setOffers(data)))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [dispatch]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -31,51 +39,15 @@ function MainPage(): JSX.Element {
   return (
     <div className="page page--gray page--main">
       <Header/>
-
       <main className="page__main page__main--index">
         <h1 className="visually-hidden">Cities</h1>
-        <div className="tabs">
-          <section className="locations container">
-            <ul className="locations__list tabs__list">
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item tabs__item--active" href="#">
-                  <span>Paris</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Cologne</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Brussels</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item">
-                  <span>Amsterdam</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Hamburg</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Dusseldorf</span>
-                </a>
-              </li>
-            </ul>
-          </section>
-        </div>
+        <CitiesList cities={['Paris','Cologne','Brussels','Amsterdam','Hamburg','Dusseldorf']}/>
         <div className="cities">
           {!isLoading && (
             <div className="cities__places-container container">
               <section className="cities__places places">
                 <h2 className="visually-hidden">Places</h2>
-                <b className="places__found">{offers.length} places to stay in Amsterdam</b>
+                <b className="places__found">{offers.length} places to stay in {city}</b>
                 <form className="places__sorting" action="#" method="get">
                   <span className="places__sorting-caption">Sort by</span>
                   <span className="places__sorting-type" tabIndex={0}>
