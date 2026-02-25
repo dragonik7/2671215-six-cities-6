@@ -1,24 +1,27 @@
-// src/pages/main/MainPage.tsx
-
-import {useEffect, useState} from 'react';
-import {RootState} from '../../store';
+import { useEffect, useState, useMemo } from 'react';
+import { RootState } from '../../store';
 import Header from '../../components/Header.tsx';
 import CitiesList from '../../components/CitiesList.tsx';
-import {useDispatch, useSelector} from 'react-redux';
-import {setOffers} from '../../store/reducer';
+import { useDispatch, useSelector } from 'react-redux';
+import { setOffers } from '../../store/reducer';
 import OffersList from '../../components/OffersList.tsx';
-import {getOffers} from '../../services/offers';
-import {Offer} from '../../types/types.ts';
+import { getOffers } from '../../services/offers';
+import { Offer, City } from '../../types/types.ts';
 import Map from '../../components/Map.tsx';
+import Sorting, { SortingOption } from '../../components/Sorting.tsx';
 
 function MainPage(): JSX.Element {
   const offersAll = useSelector((state: RootState) => state.app.offers);
-  const city = useSelector((state: RootState) => state.app.city);
+  const cityName = useSelector((state: RootState) => state.app.city);
   const dispatch = useDispatch();
-  const offers = offersAll.filter((o) => o.city.name === city);
 
   const [activeOffer, setActiveOffer] = useState<Offer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentSort, setCurrentSort] = useState<SortingOption>('Popular');
+
+  useEffect(() => {
+    setActiveOffer(null);
+  }, [cityName]);
 
   const mapStyle: React.CSSProperties = {
     width: '500px',
@@ -31,6 +34,36 @@ function MainPage(): JSX.Element {
       .then((data) => dispatch(setOffers(data)))
       .finally(() => setIsLoading(false));
   }, [dispatch]);
+
+  const filteredOffers = useMemo(() =>
+    offersAll.filter((o) => o.city.name === cityName),
+  [offersAll, cityName]
+  );
+
+  const currentCity: City | null = useMemo(() => {
+    const found = offersAll.find((o) => o.city.name === cityName);
+    return found ? found.city : null;
+  }, [offersAll, cityName]);
+
+  const sortedOffers = useMemo(() => {
+    const offersCopy = [...filteredOffers];
+
+    switch (currentSort) {
+      case 'Price: low to high':
+        return offersCopy.sort((a, b) => a.price - b.price);
+      case 'Price: high to low':
+        return offersCopy.sort((a, b) => b.price - a.price);
+      case 'Top rated first':
+        return offersCopy.sort((a, b) => b.rating - a.rating);
+      case 'Popular':
+      default:
+        return offersCopy;
+    }
+  }, [filteredOffers, currentSort]);
+
+  const handleSortChange = (sort: SortingOption) => {
+    setCurrentSort(sort);
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -47,31 +80,23 @@ function MainPage(): JSX.Element {
             <div className="cities__places-container container">
               <section className="cities__places places">
                 <h2 className="visually-hidden">Places</h2>
-                <b className="places__found">{offers.length} places to stay in {city}</b>
-                <form className="places__sorting" action="#" method="get">
-                  <span className="places__sorting-caption">Sort by</span>
-                  <span className="places__sorting-type" tabIndex={0}>
-                  Popular
-                    <svg className="places__sorting-arrow" width="7" height="4">
-                      <use xlinkHref="#icon-arrow-select"></use>
-                    </svg>
-                  </span>
-                  <ul className="places__options places__options--custom places__options--opened">
-                    <li className="places__option places__option--active" tabIndex={0}>Popular</li>
-                    <li className="places__option" tabIndex={1}>Price: low to high</li>
-                    <li className="places__option" tabIndex={2}>Price: high to low</li>
-                    <li className="places__option" tabIndex={3}>Top rated first</li>
-                  </ul>
-                </form>
-                <OffersList offers={offers} activeOffer={activeOffer} setActiveOffer={setActiveOffer}/>
+                <b className="places__found">{sortedOffers.length} places to stay in {cityName}</b>
+                <Sorting currentSort={currentSort} onSortChange={handleSortChange} />
+                <OffersList
+                  offers={sortedOffers}
+                  activeOffer={activeOffer}
+                  setActiveOffer={setActiveOffer}
+                />
               </section>
 
               <section className="cities__right-section" style={{paddingTop: '29px'}}>
-                <Map
-                  mapStyle={mapStyle}
-                  offers={offers}
-                  selectedPoint={activeOffer?.location}
-                />
+                {currentCity && (
+                  <Map
+                    mapStyle={mapStyle}
+                    offers={filteredOffers}
+                    selectedPoint={activeOffer?.location}
+                  />
+                )}
               </section>
             </div>)}
         </div>
