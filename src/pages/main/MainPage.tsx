@@ -1,22 +1,21 @@
 import { useEffect, useState, useMemo } from 'react';
-import { RootState } from '../../store';
+import {AppDispatch, RootState} from '../../store';
 import Header from '../../components/Header.tsx';
 import CitiesList from '../../components/CitiesList.tsx';
 import { useDispatch, useSelector } from 'react-redux';
-import { setOffers } from '../../store/reducer';
+import {fetchOffers} from '../../store/reducer';
 import OffersList from '../../components/OffersList.tsx';
-import { getOffers } from '../../services/offers';
 import { Offer, City } from '../../types/types.ts';
 import Map from '../../components/Map.tsx';
 import Sorting, { SortingOption } from '../../components/Sorting.tsx';
+import Spinner from '../../components/Spinner.tsx';
 
 function MainPage(): JSX.Element {
+  const dispatch = useDispatch<AppDispatch>();
   const offersAll = useSelector((state: RootState) => state.app.offers);
   const cityName = useSelector((state: RootState) => state.app.city);
-  const dispatch = useDispatch();
-
+  const loading = useSelector((state: RootState) => state.app.loading);
   const [activeOffer, setActiveOffer] = useState<Offer | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [currentSort, setCurrentSort] = useState<SortingOption>('Popular');
 
   useEffect(() => {
@@ -30,9 +29,7 @@ function MainPage(): JSX.Element {
   };
 
   useEffect(() => {
-    getOffers()
-      .then((data) => dispatch(setOffers(data)))
-      .finally(() => setIsLoading(false));
+    dispatch(fetchOffers());
   }, [dispatch]);
 
   const filteredOffers = useMemo(() =>
@@ -65,8 +62,8 @@ function MainPage(): JSX.Element {
     setCurrentSort(sort);
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (loading) {
+    return <Spinner />;
   }
 
   return (
@@ -76,7 +73,7 @@ function MainPage(): JSX.Element {
         <h1 className="visually-hidden">Cities</h1>
         <CitiesList cities={['Paris','Cologne','Brussels','Amsterdam','Hamburg','Dusseldorf']}/>
         <div className="cities">
-          {!isLoading && (
+          {!loading && (
             <div className="cities__places-container container">
               <section className="cities__places places">
                 <h2 className="visually-hidden">Places</h2>
