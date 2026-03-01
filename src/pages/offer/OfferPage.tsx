@@ -149,7 +149,12 @@ function OfferPage(): JSX.Element {
             </div>
           </div>
         </section>
-        <Map offers={[offer, ...nearbyOffers]} mapStyle={mapStyle} selectedPoint={activeOffer?.location}/>
+        <Map
+          offers={[offer, ...nearbyOffers]}
+          mapStyle={mapStyle}
+          selectedPoint={activeOffer?.location ?? offer.location}
+          city={offer.city}
+        />
         <div className="container">
           <section className="near-places places">
             <h2 className="near-places__title">Other places in the neighbourhood</h2>

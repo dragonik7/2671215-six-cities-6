@@ -93,6 +93,7 @@ function MainPage(): JSX.Element {
                 {currentCity && (
                   <Map
                     mapStyle={mapStyle}
+                    city={currentCity}
                     offers={filteredOffers}
                     selectedPoint={activeOffer?.location}
                   />

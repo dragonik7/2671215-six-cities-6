@@ -1,15 +1,16 @@
 //src/components/Map.tsx
 
-import React, {useRef, useEffect} from 'react';
-import {Icon, Marker, layerGroup} from 'leaflet';
+import React, {useEffect, useRef} from 'react';
+import {Icon, layerGroup, Marker} from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import useMap from '../hooks/useMap.ts';
-import {Location, Offer} from '../types/types.ts';
+import {City, Location, Offer} from '../types/types.ts';
 import {URL_MARKER_CURRENT, URL_MARKER_DEFAULT} from '../const.ts';
 import {useNavigate} from 'react-router-dom';
 
 type MapProps = {
   mapStyle: React.CSSProperties;
+  city: City;
   offers: Offer[];
   selectedPoint: Location | undefined;
 };
@@ -26,35 +27,53 @@ const currentCustomIcon = new Icon({
   iconAnchor: [16, 32]
 });
 
-function Map({mapStyle, offers, selectedPoint}: MapProps): JSX.Element {
-  const city = offers[0]?.city;
+function Map({mapStyle, city, offers, selectedPoint}: MapProps): JSX.Element {
   const navigate = useNavigate();
   const mapRef = useRef(null);
 
   const map = useMap(mapRef, city);
 
   useEffect(() => {
+    if (!map || !city) {
+      return;
+    }
+
+    map.setView(
+      [city.location.latitude, city.location.longitude],
+      city.location.zoom
+    );
+  }, [map, city]);
+
+  useEffect(() => {
     if (!map) {
       return;
     }
+
     const markerLayer = layerGroup().addTo(map);
 
     offers.forEach((offer) => {
       const {latitude, longitude} = offer.location;
-
+      const isSelected = selectedPoint !== undefined &&
+      latitude === selectedPoint.latitude &&
+      longitude === selectedPoint.longitude
+        ? currentCustomIcon
+        : defaultCustomIcon;
       const marker = new Marker({
         lat: latitude,
         lng: longitude
-      });
+      },
+      {icon: isSelected}
+      );
 
       marker
-        .setIcon(
-          selectedPoint !== undefined &&
-              latitude === selectedPoint.latitude &&
-              longitude === selectedPoint.longitude
-            ? currentCustomIcon
-            : defaultCustomIcon
-        )
+        .on('mouseover', () => {
+          marker.setIcon(currentCustomIcon);
+        })
+        .on('mouseout', () => {
+          marker.setIcon(
+            isSelected ? defaultCustomIcon : currentCustomIcon
+          );
+        })
         .on('click', () => {
           navigate(`/offer/${offer.id}`);
         })
@@ -67,7 +86,7 @@ function Map({mapStyle, offers, selectedPoint}: MapProps): JSX.Element {
     };
   }, [map, offers, selectedPoint, navigate]);
 
-  return <div style={mapStyle} ref={mapRef}></div>;
+  return <div ref={mapRef} style={mapStyle}/>;
 }
 
 export default Map;
