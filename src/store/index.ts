@@ -3,11 +3,13 @@ import { configureStore } from '@reduxjs/toolkit';
 import { appReducer } from './reducer';
 import {api} from '../services/api.ts';
 import {offerReducer} from './offer-slice.ts';
+import {userReducer} from './user/user.slice.ts';
 
 export const store = configureStore({
   reducer: {
     app: appReducer,
     offer: offerReducer,
+    user: userReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

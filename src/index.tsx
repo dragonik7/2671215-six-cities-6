@@ -9,10 +9,12 @@ import PrivateRoute from './components/PrivateRoute.tsx';
 import FavoritesPage from './pages/favorites/FavoritesPage.tsx';
 import {store} from './store';
 import {Provider} from 'react-redux';
+import {checkAuth} from './store/user/user.thunks.ts';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+store.dispatch(checkAuth());
 
 root.render(
   <React.StrictMode>

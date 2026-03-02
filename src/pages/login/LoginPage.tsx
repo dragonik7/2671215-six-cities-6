@@ -1,6 +1,34 @@
 import Header from '../../components/Header.tsx';
+import {login} from '../../store/user/user.thunks.ts';
+import {FormEvent} from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {AuthorizationStatus} from '../../const.ts';
+import {useNavigate} from 'react-router-dom';
+import {AppDispatch, RootState} from '../../store';
 
 function LoginPage(): JSX.Element {
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+
+  const authStatus = useSelector(
+    (state: RootState) => state.user.authorizationStatus
+  );
+
+  if (authStatus === AuthorizationStatus.Auth) {
+    navigate('/');
+  }
+
+  const handleSubmit = (evt: FormEvent<HTMLFormElement>) => {
+    evt.preventDefault();
+
+    const formData = new FormData(evt.currentTarget);
+
+    dispatch(login({
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
+    }));
+  };
+
   return (
     <div className="page page--gray page--login">
       <Header hideUser/>
@@ -9,7 +37,7 @@ function LoginPage(): JSX.Element {
         <div className="page__login-container container">
           <section className="login">
             <h1 className="login__title">Sign in</h1>
-            <form className="login__form form" action="#" method="post">
+            <form className="login__form form" onSubmit={handleSubmit}>
               <div className="login__input-wrapper form__input-wrapper">
                 <label className="visually-hidden">E-mail</label>
                 <input className="login__input form__input" type="email" name="email" placeholder="Email" required/>

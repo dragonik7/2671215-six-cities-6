@@ -45,3 +45,16 @@ export interface Review {
   comment: string;
   rating: number;
 }
+
+export interface AuthInfoWithToken {
+  name: string;
+  avatarUrl: string;
+  isPro: boolean;
+  email: string;
+  token: string;
+}
+
+export interface LoginData {
+  email: string;
+  password: string;
+}

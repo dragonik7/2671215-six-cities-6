@@ -1,9 +1,23 @@
 import {Link} from 'react-router-dom';
+import {AppDispatch, RootState} from '../store';
+import {AuthorizationStatus} from '../const.ts';
+import {useDispatch, useSelector} from 'react-redux';
+import {logout} from '../store/user/user.thunks.ts';
 
 export interface HeaderProps {
   hideUser?: boolean;
 }
+
 function Header({hideUser}: HeaderProps): JSX.Element {
+  const {authorizationStatus, email} = useSelector(
+    (state: RootState) => state.user
+  );
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
+
   return (
     <header className="header">
       <div className="container">
@@ -23,21 +37,26 @@ function Header({hideUser}: HeaderProps): JSX.Element {
           {hideUser ? null :
             <nav className="header__nav">
               <ul className="header__nav-list">
-                <li className="header__nav-item user">
-                  <Link className="header__nav-link header__nav-link--profile" to="#">
-                    <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                    <span className="header__user-name user__name">
-                    Oliver.conner@gmail.com
-                    </span>
-                    <span className="header__favorite-count">3</span>
+                {authorizationStatus === AuthorizationStatus.Auth ? (
+                  <>
+                    <li className="header__nav-item user">
+                      <Link className="header__nav-link header__nav-link--profile" to="#">
+                        <div className="header__avatar-wrapper user__avatar-wrapper"></div>
+                        <span className="header__user-name user__name">{email}</span>
+                        <span className="header__favorite-count">3</span>
+                      </Link>
+                    </li>
+                    <li className="header__nav-item">
+                      <Link className="header__nav-link" to="#" onClick={handleLogout}>
+                        <span className="header__signout">Sign out</span>
+                      </Link>
+                    </li>
+                  </>
+                ) : (
+                  <Link className="header__nav-link" to="/login">
+                    <span className="header__signout">Sign in</span>
                   </Link>
-                </li>
-
-                <li className="header__nav-item">
-                  <Link className="header__nav-link" to="#">
-                    <span className="header__signout">Sign out</span>
-                  </Link>
-                </li>
+                )}
               </ul>
             </nav>}
         </div>
@@ -45,4 +64,5 @@ function Header({hideUser}: HeaderProps): JSX.Element {
     </header>
   );
 }
+
 export default Header;
