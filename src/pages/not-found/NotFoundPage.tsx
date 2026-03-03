@@ -1,5 +1,6 @@
 import {Link} from 'react-router-dom';
 import Header from '../../components/Header.tsx';
+import CitiesList from '../../components/CitiesList.tsx';
 
 function NotFoundPage(): JSX.Element {
   return (
@@ -10,22 +11,7 @@ function NotFoundPage(): JSX.Element {
         <h1 className="visually-hidden">Cities</h1>
         <div className="tabs">
           <section className="locations container">
-            <ul className="locations__list tabs__list">
-              {[
-                'Paris',
-                'Cologne',
-                'Brussels',
-                'Amsterdam',
-                'Hamburg',
-                'Dusseldorf',
-              ].map((city) => (
-                <li key={city} className="locations__item">
-                  <Link className="locations__item-link tabs__item" to="#">
-                    <span>{city}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <CitiesList cities={['Paris','Cologne','Brussels','Amsterdam','Hamburg','Dusseldorf']}/>
           </section>
         </div>
 

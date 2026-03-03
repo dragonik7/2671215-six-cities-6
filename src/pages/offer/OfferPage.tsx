@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import {useParams, useLocation, Navigate} from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
 import { fetchOffer, clearOffer } from '../../store/offer-slice';
@@ -48,7 +48,7 @@ function OfferPage(): JSX.Element {
   }
 
   if (error || !offer) {
-    return <div>Offer not found</div>;
+    return <Navigate to="/404" replace />;
   }
 
   return (

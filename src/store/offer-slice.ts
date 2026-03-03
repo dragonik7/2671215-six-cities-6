@@ -31,6 +31,23 @@ export const fetchOffer = createAsyncThunk<
   return { offer, reviews, nearby };
 });
 
+export const postReview = createAsyncThunk<
+    Review,
+    { id: string; comment: string; rating: number },
+    { extra: AxiosInstance }
+>(
+  'offer/postReview',
+  async ({ id, comment, rating }, { extra: api }) => {
+    const { data } = await api.post<Review>(`/six-cities/comments/${id}`, {
+      comment,
+      rating,
+    });
+
+    return data;
+  }
+);
+
+
 const offerSlice = createSlice({
   name: 'offer',
   initialState,
@@ -57,6 +74,9 @@ const offerSlice = createSlice({
       .addCase(fetchOffer.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to load offer';
+      })
+      .addCase(postReview.fulfilled, (state, action) => {
+        state.reviews = [action.payload, ...state.reviews];
       });
   },
 });
