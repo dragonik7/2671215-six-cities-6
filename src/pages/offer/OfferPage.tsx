@@ -43,11 +43,11 @@ function OfferPage(): JSX.Element {
     borderRadius: '10px',
   };
 
-  if (loading) {
+  if (loading || offer === null) {
     return <Spinner />;
   }
 
-  if (error || !offer) {
+  if (error) {
     return <Navigate to="/404" replace />;
   }
 

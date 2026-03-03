@@ -7,7 +7,7 @@ interface OfferState {
   reviews: Review[];
   nearbyOffers: Offer[];
   loading: boolean;
-  error: string | null;
+  error: string | boolean;
 }
 
 const initialState: OfferState = {
@@ -15,7 +15,7 @@ const initialState: OfferState = {
   reviews: [],
   nearbyOffers: [],
   loading: false,
-  error: null,
+  error: false,
 };
 
 export const fetchOffer = createAsyncThunk<
@@ -56,14 +56,14 @@ const offerSlice = createSlice({
       state.offer = null;
       state.reviews = [];
       state.nearbyOffers = [];
-      state.error = null;
+      state.error = false;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchOffer.pending, (state) => {
         state.loading = true;
-        state.error = null;
+        state.error = false;
       })
       .addCase(fetchOffer.fulfilled, (state, action) => {
         state.loading = false;
